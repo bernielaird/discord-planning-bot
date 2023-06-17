@@ -1,5 +1,6 @@
-from datetime import date, timedelta
 import calendar
+from datetime import date, timedelta
+
 
 def date_range_list(start_date, end_date):
     try:
