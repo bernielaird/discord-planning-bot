@@ -1,3 +1,4 @@
+import configparser
 import json
 
 import boto3
@@ -25,21 +26,35 @@ async def send_message(message, user_message):
         print(e)
 
 
-def get_secrets():
-    secrets_store_name = "prod/discord"
+def get_secrets_client():
+    try:
+        config = configparser.ConfigParser()
+        config.read("local.cnf")
+        profile_name = config.get('aws', 'profile_name')
+
+        # Create a Secrets Manager client
+        session = boto3.session.Session(
+            profile_name=profile_name
+        )
+    except Exception as e:
+        session = boto3.session.Session()
+
     region_name = "us-west-2"
 
-    # Create a Secrets Manager client
-    session = boto3.session.Session()
     client = session.client(
         service_name='secretsmanager',
         region_name=region_name
     )
+    return client
+
+
+def get_secrets():
+    client = get_secrets_client()
     print(f'got client ok')
 
     try:
         get_secret_value_response = client.get_secret_value(
-            SecretId=secrets_store_name
+            SecretId="prod/discord"
         )
     except ClientError as e:
         # For a list of exceptions thrown, see
@@ -96,7 +111,10 @@ def run_discord_bot(token, user_id):
     @app_commands.describe(people="@ the individuals/roles who you want to notify of the vote")
     @app_commands.describe(first_date="What's the First Potential Date in mm/dd/yyyy")
     @app_commands.describe(second_date="What's the Second Potential Date in mm/dd/yyyy")
-    async def eventpoll(interaction: discord.Interaction, event_name: str, people: str, first_date: str,
+    async def eventpoll(interaction: discord.Interaction,
+                        event_name: str,
+                        people: str,
+                        first_date: str,
                         second_date: str):
         funny = (f'{event_name} {people}').lower()
         if any(word in funny for word in profanityList):

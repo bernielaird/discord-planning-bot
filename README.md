@@ -23,3 +23,14 @@ Run App
 ```shell
 python3 main.py
 ```
+
+## Local Testing
+
+1. Place AWS access keys in `~/.aws`
+2. `local.cnf` entry for AWS profile indicates which credentials will be used:
+```
+[aws]
+profile_name=default
+```
+Note: `local.cnf` should **not** be deployed snce production does not use AWS credentials for auth.
+
