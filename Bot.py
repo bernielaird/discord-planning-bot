@@ -1,5 +1,6 @@
 import configparser
 import json
+from datetime import datetime, timezone
 
 import boto3
 import discord
@@ -83,7 +84,8 @@ def run_discord_bot(token, user_id):
 
     @client.event
     async def on_ready():
-        print(f'{client.user} is now going')
+        now_utc = datetime.now(timezone.utc)
+        print(f'{client.user} started at: {now_utc}')
 
     @client.event
     async def on_message(message):
